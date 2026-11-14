@@ -13,7 +13,7 @@ signal spawned(zombie: Node3D)
 @export var spawn_distance := Vector2(9.0, 15.0)
 @export var first_spawn_delay: float = 4.0
 @export var spawn_interval := Vector2(2.0, 4.0)
-@export var max_alive: int = 10
+@export var max_alive: int = 8
 
 var _timer := 0.0
 var _player_was_inside := false

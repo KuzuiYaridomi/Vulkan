@@ -18,7 +18,7 @@ const TREE_LIBRARY := preload("res://Scenes/Trees.tscn")
 @export var edge_tree_line: bool = true
 @export var edge_spacing: float = 5.0
 @export_range(1, 6) var variants_per_type: int = 3
-@export var view_distance: float = 100.0
+@export var view_distance: float = 80.0
 
 @export_group("Clearing")
 @export var clear_around: Node3D

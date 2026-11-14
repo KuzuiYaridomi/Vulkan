@@ -23,6 +23,7 @@
 [ext_resource type="Script" uid="uid://bmt8f7q48h35n" path="res://Scripts/pause_menu.gd" id="24_pause"]
 [ext_resource type="Script" uid="uid://b65rwjutelixi" path="res://Scripts/pixel_text.gd" id="25_pixel"]
 [ext_resource type="AudioStream" uid="uid://dm27h0ovnhf1r" path="res://All_Assets/Audio/interaction_pop.wav" id="26_click"]
+[ext_resource type="Script" path="res://Scripts/shader_warmup.gd" id="27_warmup"]
 
 [sub_resource type="FastNoiseLite" id="Noise_clouds"]
 frequency = 0.012
@@ -520,7 +521,7 @@ shadow_opacity = 0.8
 shadow_blur = 1.5
 directional_shadow_mode = 1
 directional_shadow_blend_splits = true
-directional_shadow_max_distance = 40.0
+directional_shadow_max_distance = 30.0
 
 [node name="StaticBody3D" type="StaticBody3D" parent="." unique_id=480556275]
 transform = Transform3D(6, 0, 0, 0, 5, 0, 0, 0, 223.092, 0, 0.034698486, 230.637)
@@ -2368,7 +2369,9 @@ script = ExtResource("9_forest")
 road_x = 0.04
 road_start_z = -55.0
 road_end_z = 515.0
-view_distance = 100.0
+view_distance = 80.0
+chunk_length = 20.0
+shrub_spacing = 5.0
 
 [node name="group of trees7" type="Node3D" parent="." unique_id=1575737776]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18.136982, 0, -35.542313)
@@ -2952,3 +2955,6 @@ text = "Main menu"
 [node name="ClickSound" type="AudioStreamPlayer" parent="PauseMenu" unique_id=1436530923]
 stream = ExtResource("26_click")
 volume_db = -4.0
+
+[node name="ShaderWarmup" type="Node3D" parent="."]
+script = ExtResource("27_warmup")

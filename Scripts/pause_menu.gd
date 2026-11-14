@@ -16,6 +16,7 @@ const MENU_SCENE := "res://Scenes/MainMenu.tscn"
 var _open := false
 var _leaving := false
 var _grace := 1.0
+var _was_captured := false
 var _tween: Tween
 
 
@@ -52,14 +53,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func _in_gameplay() -> bool:
+	var p = _player()
+	return p != null and p.visible and p.process_mode != Node.PROCESS_MODE_DISABLED
+
+
 func _process(delta: float) -> void:
 	_grace = maxf(_grace - delta, 0.0)
-	if not _open and _grace <= 0.0 and _can_pause() and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	var captured := Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+	if not _open and _grace <= 0.0 and _was_captured and not captured and _in_gameplay() and _can_pause():
 		open()
+	if not _open:
+		_was_captured = captured
 
 
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and not _open and _can_pause() and _grace <= 0.0:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT and not _open and _grace <= 0.0 and _in_gameplay() and _can_pause():
 		open()
 
 
