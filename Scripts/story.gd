@@ -114,7 +114,12 @@ func _on_zombie_spawned(_z: Node3D) -> void:
 
 
 func _on_kills_changed(kills: int) -> void:
-	if _ending() or kills < kills_for_creature or _portal_open or (_creature and is_instance_valid(_creature)):
+	if kills >= kills_for_creature:
+		_spawn_creature()
+
+
+func _spawn_creature() -> void:
+	if _ending() or _portal_open or (_creature and is_instance_valid(_creature)):
 		return
 	var back: Vector3 = player.global_basis.z
 	back.y = 0.0
@@ -147,4 +152,10 @@ func _on_respawned() -> void:
 	var s = _subs()
 	if s:
 		s.clear()
+	if player.last_damage_source == "creature":
+		_creature = null
+		_said_creature = false
+		await get_tree().create_timer(1.0, false).timeout
+		_spawn_creature()
+		return
 	_say("dear god take me to heaven.", true)

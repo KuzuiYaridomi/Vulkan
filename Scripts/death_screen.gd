@@ -73,12 +73,11 @@ func _on_died() -> void:
 func _killed_by_him() -> void:
 	_running = true
 	visible = true
-	var pm = get_tree().get_first_node_in_group("pause_menu")
-	if pm:
-		pm.lock()
-	for c in [you_died, restart_label, bar]:
-		c.visible = false
-	for c in [killed_by, him, title_button]:
+	_progress = 0.0
+	bar.queue_redraw()
+	title_button.visible = false
+	you_died.visible = false
+	for c in [killed_by, him, restart_label, bar]:
 		c.visible = true
 		c.modulate.a = 0.0
 	var vp := get_viewport().get_visible_rect().size
@@ -93,8 +92,13 @@ func _killed_by_him() -> void:
 	t.tween_callback(func(): him.set("glitch", 1.0))
 	t.tween_property(him, "modulate:a", 1.0, 0.1)
 	t.tween_interval(0.6)
-	t.tween_property(title_button, "modulate:a", 1.0, 0.4)
-	t.tween_callback(_show_cursor)
+	t.tween_property(restart_label, "modulate:a", 1.0, 0.3)
+	t.parallel().tween_property(bar, "modulate:a", 1.0, 0.3)
+	t.tween_method(_set_progress, 0.0, 1.0, respawn_time)
+	t.tween_callback(_respawn)
+	for c in [dim, band, killed_by, him, restart_label, bar]:
+		t.parallel().tween_property(c, "modulate:a", 0.0, 0.6)
+	t.tween_callback(_finish)
 
 
 func _show_cursor() -> void:

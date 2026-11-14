@@ -231,7 +231,8 @@ func _die() -> void:
 
 
 func respawn() -> void:
-	var rp := get_tree().get_first_node_in_group("respawn_point") as Node3D
+	var by_him := last_damage_source == "creature"
+	var rp := get_tree().get_first_node_in_group("creature_respawn_point" if by_him else "respawn_point") as Node3D
 	if rp:
 		global_position = rp.global_position
 		rotation = Vector3(0.0, rp.global_rotation.y, 0.0)
@@ -241,8 +242,9 @@ func respawn() -> void:
 	_apply_height(_current_height)
 	for z in get_tree().get_nodes_in_group("zombie"):
 		z.queue_free()
-	kills = 0
-	kills_changed.emit(kills)
+	if not by_him:
+		kills = 0
+		kills_changed.emit(kills)
 	health = max_health
 	is_dead = false
 	_invulnerable_until = Time.get_ticks_msec() / 1000.0 + 2.0

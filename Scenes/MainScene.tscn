@@ -2817,7 +2817,7 @@ script = ExtResource("11_teleporter")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="teleporter2/TeleportArea" unique_id=1643734447]
 shape = SubResource("BoxShape3D_teleport")
 
-[node name="Arrival" type="Marker3D" parent="teleporter2" unique_id=562885785]
+[node name="Arrival" type="Marker3D" parent="teleporter2" unique_id=562885785 groups=["creature_respawn_point"]]
 transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 4.26, 0.1, 0.75512695)
 
 [node name="Glow" type="OmniLight3D" parent="teleporter2" unique_id=924931168]
