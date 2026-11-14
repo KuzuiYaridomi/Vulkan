@@ -9,3 +9,6 @@ CONTROLS:
 4. shift to crouch
 5. Lcontrol to sprint
 6. ESC to pause.
+
+A game made in Godot
+Horror/analog themed and shooting!
