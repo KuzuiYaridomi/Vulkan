@@ -120,7 +120,7 @@ func _on_kills_changed(kills: int) -> void:
 	back.y = 0.0
 	_creature = creature_scene.instantiate()
 	get_parent().add_child(_creature)
-	_creature.global_position = player.global_position + back.normalized() * 7.0 + Vector3.UP * 2.5
+	_creature.global_position = player.global_position + back.normalized() * 10.0 + Vector3.UP * 14.0
 	_creature.died_at.connect(_on_creature_died)
 	print("Story: red creature spawned")
 

@@ -55,6 +55,8 @@ var last_damage_source := ""
 var _invulnerable_until := 0.0
 var _focused: Node = null
 var _step_time := 0.0
+var _force_node: Node3D = null
+var _force_t := 0.0
 
 @onready var shotgun: Node3D = get_node_or_null("Head/Camera3D/Shotgun")
 @onready var crosshair: Control = get_node_or_null("HUD/Crosshair")
@@ -91,7 +93,7 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if is_dead:
 		return
-	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED and _force_t <= 0.0:
 		rotate_y(-event.relative.x * mouse_sensitivity)
 		head.rotate_x(-event.relative.y * mouse_sensitivity)
 		head.rotation.x = clampf(head.rotation.x, deg_to_rad(-max_pitch_deg), deg_to_rad(max_pitch_deg))
@@ -258,13 +260,14 @@ func add_kill() -> void:
 
 func _physics_process(delta: float) -> void:
 	_update_crouch(delta)
+	_update_forced_look(delta)
 
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
-	elif Input.is_action_just_pressed("jump") and not _is_crouching():
+	elif Input.is_action_just_pressed("jump") and not _is_crouching() and _force_t <= 0.0:
 		velocity.y = jump_velocity
 
-	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	var input_dir := Vector2.ZERO if _force_t > 0.0 else Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	var direction := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
 
 	var speed := walk_speed
@@ -308,3 +311,28 @@ func _apply_height(h: float) -> void:
 	collision.position.y = h * 0.5
 	mesh_instance.position.y = h * 0.5
 	head.position.y = h - eye_offset
+
+
+func force_look_at(node: Node3D, duration: float) -> void:
+	_force_node = node
+	_force_t = duration
+
+
+func is_forced_look() -> bool:
+	return _force_t > 0.0
+
+
+func _update_forced_look(delta: float) -> void:
+	if _force_t <= 0.0:
+		return
+	_force_t -= delta
+	if _force_node == null or not is_instance_valid(_force_node):
+		_force_t = 0.0
+		return
+	var dir := _force_node.global_position - head.global_position
+	var flat := Vector2(dir.x, dir.z).length()
+	var yaw := atan2(-dir.x, -dir.z)
+	var pitch := clampf(atan2(dir.y, flat), deg_to_rad(-max_pitch_deg), deg_to_rad(max_pitch_deg))
+	var k := clampf(delta * 6.0, 0.0, 1.0)
+	rotation.y = lerp_angle(rotation.y, yaw, k)
+	head.rotation.x = lerpf(head.rotation.x, pitch, k)

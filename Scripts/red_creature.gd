@@ -5,11 +5,16 @@ signal died_at(position: Vector3)
 @export var max_health: int = 30
 @export var damage: int = 2
 @export var follow_speed: float = 6.5
+@export var dive_speed: float = 12.0
 @export var lunge_speed: float = 12.0
 @export var behind_distance: float = 2.6
 @export var hover_height: float = 1.9
 @export var attack_interval := Vector2(3.0, 4.8)
-@export var knockback: float = 0.2
+@export var knockback: float = 0.35
+@export var intro_turn_time: float = 1.0
+@export var intro_hold_time: float = 1.8
+@export var flank_radius: float = 3.4
+@export var flank_time: float = 0.9
 @export var portal_scene: PackedScene = preload("res://Scenes/end_portal.tscn")
 
 @onready var body_mesh: MeshInstance3D = $Visual/Core
@@ -17,12 +22,13 @@ signal died_at(position: Vector3)
 @onready var wing_l: Node3D = $Visual/WingL
 @onready var wing_r: Node3D = $Visual/WingR
 @onready var shards: Node3D = $Visual/Shards
+@onready var halo: MeshInstance3D = $Visual/Halo
 @onready var glow: OmniLight3D = $Glow
 @onready var hit_sound: AudioStreamPlayer3D = $HitSound
 @onready var spawn_sound: AudioStreamPlayer3D = $SpawnSound
 
-enum State { FOLLOW, LUNGE, RETREAT, DEAD }
-var state := State.FOLLOW
+enum State { INTRO, FOLLOW, LUNGE, RETREAT, FLANK, DEAD }
+var state := State.INTRO
 var health: int
 var _player: Node3D
 var _attack_timer := 3.0
@@ -31,6 +37,9 @@ var _lunge_target := Vector3.ZERO
 var _hit_this_lunge := false
 var _time := 0.0
 var _mat: StandardMaterial3D
+var _intro_started := false
+var _flank_from := 0.0
+var _flank_to := 0.0
 
 
 func _ready() -> void:
@@ -39,9 +48,8 @@ func _ready() -> void:
 	add_to_group("creature")
 	_mat = body_mesh.get_active_material(0).duplicate()
 	body_mesh.set_surface_override_material(0, _mat)
-	_attack_timer = randf_range(attack_interval.x, attack_interval.y) + 1.5
 	visual.scale = Vector3.ONE * 0.01
-	create_tween().tween_property(visual, "scale", Vector3.ONE, 0.8).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	create_tween().tween_property(visual, "scale", Vector3.ONE * 1.4, 0.8).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	spawn_sound.play()
 
 
@@ -58,6 +66,20 @@ func _physics_process(delta: float) -> void:
 	var head: Vector3 = _player.global_position + Vector3.UP * 1.6
 	_state_t += delta
 	match state:
+		State.INTRO:
+			if not _intro_started:
+				_intro_started = true
+				if _player.has_method("force_look_at"):
+					_player.force_look_at(self, intro_turn_time + intro_hold_time)
+			_hover_in_place(delta)
+			if _state_t >= intro_turn_time + intro_hold_time:
+				state = State.FOLLOW
+				_state_t = 0.0
+				_attack_timer = randf_range(attack_interval.x, attack_interval.y) + 1.0
+				var tw := create_tween()
+				tw.tween_property(visual, "scale", Vector3.ONE, 0.6)
+				tw.parallel().tween_property(halo, "scale", Vector3.ZERO, 0.6)
+				tw.tween_callback(halo.hide)
 		State.FOLLOW:
 			var back := _player.global_basis.z
 			back.y = 0.0
@@ -65,13 +87,11 @@ func _physics_process(delta: float) -> void:
 			var side := Vector3(back.z, 0.0, -back.x)
 			var target := _player.global_position + back * behind_distance + Vector3.UP * hover_height \
 				+ side * sin(_time * 1.3) * 0.8 + Vector3.UP * sin(_time * 2.1) * 0.25
-			_fly_toward(target, follow_speed, delta)
+			var speed := dive_speed if global_position.distance_to(target) > 6.0 else follow_speed
+			_fly_toward(target, speed, delta)
 			_attack_timer -= delta
 			if _attack_timer <= 0.0 and global_position.distance_to(head) < 9.0:
-				state = State.LUNGE
-				_state_t = 0.0
-				_hit_this_lunge = false
-				_lunge_target = head
+				_start_lunge(head)
 		State.LUNGE:
 			_lunge_target = _lunge_target.lerp(head, delta * 2.0)
 			_fly_toward(_lunge_target, lunge_speed, delta)
@@ -90,12 +110,35 @@ func _physics_process(delta: float) -> void:
 				state = State.FOLLOW
 				_state_t = 0.0
 				_attack_timer = randf_range(attack_interval.x, attack_interval.y)
+		State.FLANK:
+			var k := smoothstep(0.0, 1.0, clampf(_state_t / flank_time, 0.0, 1.0))
+			var ang := lerpf(_flank_from, _flank_to, k)
+			var target := _player.global_position + Vector3(cos(ang), 0.0, sin(ang)) * flank_radius \
+				+ Vector3.UP * (hover_height + sin(k * PI) * 1.2)
+			_fly_toward(target, 16.0, delta)
+			if _state_t >= flank_time:
+				_start_lunge(head)
 	if global_position.distance_to(head) > 0.2:
 		look_at(head, Vector3.UP)
 
 
+func _start_lunge(head: Vector3) -> void:
+	state = State.LUNGE
+	_state_t = 0.0
+	_hit_this_lunge = false
+	_lunge_target = head
+
+
 func _start_retreat() -> void:
 	state = State.RETREAT
+	_state_t = 0.0
+
+
+func _start_flank() -> void:
+	var rel := global_position - _player.global_position
+	_flank_from = atan2(rel.z, rel.x)
+	_flank_to = _flank_from + PI * (1.0 if randf() < 0.5 else -1.0)
+	state = State.FLANK
 	_state_t = 0.0
 
 
@@ -129,12 +172,12 @@ func take_damage(amount: int) -> void:
 	var t := create_tween()
 	t.tween_property(_mat, "emission", Color(1, 0.04, 0.02), 0.15)
 	t.parallel().tween_property(_mat, "emission_energy_multiplier", 2.5, 0.15)
-	if _player:
-		global_position += (global_position - _player.global_position).normalized() * knockback
 	if health <= 0:
 		_die()
-
-
+		return
+	if _player and state != State.INTRO:
+		global_position += (global_position - _player.global_position).normalized() * knockback
+		_start_flank()
 func _die() -> void:
 	state = State.DEAD
 	remove_from_group("zombie")

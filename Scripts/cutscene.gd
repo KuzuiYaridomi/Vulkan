@@ -111,6 +111,8 @@ func swap_to_player() -> void:
 		return
 	_swapped = true
 	rider.visible = false
+	if has_node("CutsceneUI/SkipHint"):
+		$CutsceneUI/SkipHint.visible = false
 	player.global_position = player_spawn
 	var look := rig.global_position
 	look.y = player_spawn.y

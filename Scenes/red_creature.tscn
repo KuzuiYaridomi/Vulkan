@@ -4,6 +4,30 @@
 [ext_resource type="AudioStream" uid="uid://dlnkdh2vbub1r" path="res://All_Assets/Audio/chase_trigger.ogg" id="2_spawn"]
 [ext_resource type="AudioStream" uid="uid://bfsk3pp00nd6" path="res://All_Assets/Audio/damage_take.wav" id="3_hit"]
 
+[sub_resource type="Gradient" id="Grad_halo"]
+offsets = PackedFloat32Array(0, 0.35, 1)
+colors = PackedColorArray(1, 0.35, 0.3, 1, 1, 0.05, 0.03, 0.6, 1, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="Tex_halo"]
+gradient = SubResource("Grad_halo")
+width = 128
+height = 128
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="StandardMaterial3D" id="Mat_halo"]
+transparency = 1
+blend_mode = 1
+no_depth_test = true
+shading_mode = 0
+billboard_mode = 1
+albedo_texture = SubResource("Tex_halo")
+
+[sub_resource type="QuadMesh" id="Mesh_halo"]
+material = SubResource("Mat_halo")
+size = Vector2(5, 5)
+
 [sub_resource type="SphereShape3D" id="Shape_creature"]
 radius = 0.55
 
@@ -120,3 +144,7 @@ max_distance = 40.0
 stream = ExtResource("2_spawn")
 unit_size = 10.0
 max_distance = 60.0
+
+[node name="Halo" type="MeshInstance3D" parent="Visual"]
+cast_shadow = 0
+mesh = SubResource("Mesh_halo")

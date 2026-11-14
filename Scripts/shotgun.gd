@@ -93,8 +93,8 @@ func _process(delta: float) -> void:
 
 
 func _can_shoot() -> bool:
-	var p := owner
-	return p == null or not p.get("is_dead")
+	var p = owner
+	return p == null or (not p.get("is_dead") and not (p.has_method("is_forced_look") and p.is_forced_look()))
 
 
 func _fire(now: float) -> void:
