@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://v0cv5aa1c0nc"]
+
+[ext_resource type="PackedScene" uid="uid://bhx7yi7vhte02" path="res://Scenes/bike.tscn" id="1_bike"]
+[ext_resource type="Script" uid="uid://s823pm54h7uy" path="res://Scripts/seated_rider.gd" id="2_rider"]
+
+[node name="Bikeonplayer" type="Node3D" unique_id=71487757]
+
+[node name="Bike" parent="." unique_id=1646825381 instance=ExtResource("1_bike")]
+
+[node name="Rider" type="Node3D" parent="." unique_id=1776757575]
+script = ExtResource("2_rider")
+
+[node name="Head" type="Node3D" parent="Rider" unique_id=1007646971]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5734221, 0.05812115)
+
+[node name="Camera3D" type="Camera3D" parent="Rider/Head" unique_id=382452996]
+current = true
+fov = 75.0
+near = 0.05

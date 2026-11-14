@@ -1,0 +1,291 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/main_menu.gd" id="1_menu"]
+[ext_resource type="Shader" path="res://Scripts/menu_bg.gdshader" id="2_bg"]
+[ext_resource type="Shader" path="res://Scripts/horror_post.gdshader" id="3_post"]
+[ext_resource type="AudioStream" uid="uid://dm27h0ovnhf1r" path="res://All_Assets/Audio/interaction_pop.wav" id="4_click"]
+[ext_resource type="AudioStream" uid="uid://vnl06yiyt42u" path="res://All_Assets/Audio/Ambience sound_loop.ogg" id="5_ambience"]
+[ext_resource type="Script" path="res://Scripts/pixel_text.gd" id="6_pixel"]
+
+[sub_resource type="FastNoiseLite" id="Noise_bg"]
+frequency = 0.015
+fractal_octaves = 4
+
+[sub_resource type="NoiseTexture2D" id="NoiseTex_bg"]
+width = 256
+height = 256
+seamless = true
+noise = SubResource("Noise_bg")
+
+[sub_resource type="ShaderMaterial" id="Mat_bg"]
+shader = ExtResource("2_bg")
+shader_parameter/noise_tex = SubResource("NoiseTex_bg")
+
+[sub_resource type="ShaderMaterial" id="Mat_post"]
+shader = ExtResource("3_post")
+
+[sub_resource type="StyleBoxFlat" id="Style_panel"]
+bg_color = Color(0.03, 0.03, 0.035, 0.96)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.75, 0.75, 0.72, 1)
+content_margin_left = 32.0
+content_margin_top = 24.0
+content_margin_right = 32.0
+content_margin_bottom = 24.0
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_menu")
+
+[node name="Background" type="ColorRect" parent="."]
+material = SubResource("Mat_bg")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Title" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 40.0
+offset_bottom = 260.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("6_pixel")
+text = "Vulkan"
+font_size = 22
+pixel_scale = 7.0
+split_texels = 0.6
+auto_glitch = true
+corrupt_variants = PackedStringArray("Vulk@n", "V_lkan", "Vu1kan", "Vulk4n", "VuLk#n", "|/ulkan")
+
+[node name="Buttons" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = 20.0
+offset_right = 160.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 20
+
+[node name="PlayButton" type="Button" parent="Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+text = "Play"
+
+[node name="HowToButton" type="Button" parent="Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 64)
+layout_mode = 2
+text = "How to play"
+
+[node name="HowToPopup" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="HowToPopup"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="Panel" type="PanelContainer" parent="HowToPopup"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -290.0
+offset_top = -250.0
+offset_right = 290.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("Style_panel")
+
+[node name="VBox" type="VBoxContainer" parent="HowToPopup/Panel"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="Label" parent="HowToPopup/Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.94, 0.9, 1)
+theme_override_font_sizes/font_size = 34
+text = "How to play"
+horizontal_alignment = 1
+
+[node name="Controls" type="GridContainer" parent="HowToPopup/Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 40
+theme_override_constants/v_separation = 6
+columns = 2
+
+[node name="K1" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "W A S D"
+
+[node name="A1" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Move"
+
+[node name="K2" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "Mouse"
+
+[node name="A2" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Look around"
+
+[node name="K3" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "Left Mouse"
+
+[node name="A3" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Shoot"
+
+[node name="K4" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "E"
+
+[node name="A4" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Pick up"
+
+[node name="K5" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "Q"
+
+[node name="A5" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Drop weapon"
+
+[node name="K6" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "Space"
+
+[node name="A6" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Jump"
+
+[node name="K7" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "Left Ctrl"
+
+[node name="A7" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Sprint"
+
+[node name="K8" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "Left Shift"
+
+[node name="A8" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Crouch"
+
+[node name="K9" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "F"
+
+[node name="A9" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Flashlight"
+
+[node name="K10" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "]"
+
+[node name="A10" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Skip cutscene"
+
+[node name="K11" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
+text = "Esc"
+
+[node name="A11" type="Label" parent="HowToPopup/Panel/VBox/Controls"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.65, 0.65, 0.62, 1)
+text = "Pause"
+
+[node name="CloseButton" type="Button" parent="HowToPopup/Panel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(200, 52)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Close"
+
+[node name="ClickSound" type="AudioStreamPlayer" parent="."]
+unique_name_in_owner = true
+stream = ExtResource("4_click")
+volume_db = -4.0
+
+[node name="MenuAmbience" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_ambience")
+volume_db = -10.0
+autoplay = true
+
+[node name="PostFX" type="CanvasLayer" parent="."]
+layer = 5
+
+[node name="Grade" type="ColorRect" parent="PostFX"]
+material = SubResource("Mat_post")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2

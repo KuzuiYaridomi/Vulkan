@@ -1,3 +1,51 @@
-# Godot 4+ specific ignores
+# Godot 4+ generated / cache
 .godot/
 /android/
+*.tmp
+*.translation
+
+# Godot export output
+/build/
+/export/
+/exports/
+*.pck
+*.apk
+*.aab
+*.exe
+*.x86_64
+
+# Godot C# / Mono (not used, kept for safety)
+.mono/
+data_*/
+mono_crash.*.json
+
+# AI assistant files
+CLAUDE.md
+.claude/
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.code-workspace
+
+# OS junk
+.DS_Store
+Thumbs.db
+desktop.ini
+*~
+
+# Blender source files (Blender import is disabled in this project)
+*.blend
+*.blend1
+*.blend2
+
+# Reference images that aren't used in the game
+/image.png
+/image.png.import
+/hearts.png
+/hearts.png.import
+All_Assets/Textures/muzzleflash.png
+All_Assets/Textures/muzzleflash.png.import
+
+# Logs
+*.log

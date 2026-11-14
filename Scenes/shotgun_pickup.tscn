@@ -1,0 +1,19 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/weapon_pickup.gd" id="1_pickup"]
+[ext_resource type="PackedScene" uid="uid://c7u7qtqn1sgf7" path="res://All_Assets/Objects/Shotgun_3.fbx" id="2_gun"]
+
+[sub_resource type="BoxShape3D" id="Box_pickup"]
+size = Vector3(0.45, 0.3, 1.15)
+
+[node name="ShotgunPickup" type="Node3D"]
+script = ExtResource("1_pickup")
+
+[node name="Model" parent="." instance=ExtResource("2_gun")]
+transform = Transform3D(0, 0.17, 0, 0, 0, -0.17, -0.17, 0, 0, 0.015, 0.021, 0.24)
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+shape = SubResource("Box_pickup")

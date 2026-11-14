@@ -1,3 +1,308 @@
 [gd_scene format=3 uid="uid://fu8c006c006l"]
 
-[node name="Player" type="Node3D" unique_id=160431161]
+[ext_resource type="Script" path="res://Scripts/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://Scripts/health_hud.gd" id="2_hud"]
+[ext_resource type="Script" path="res://Scripts/shotgun.gd" id="3_shotgun"]
+[ext_resource type="PackedScene" uid="uid://c7u7qtqn1sgf7" path="res://All_Assets/Objects/Shotgun_3.fbx" id="4_gunmodel"]
+[ext_resource type="Texture2D" uid="uid://d36e84if2kalb" path="res://All_Assets/Textures/muzzleflash_fx.png" id="5_flash"]
+[ext_resource type="AudioStream" uid="uid://c3h01vqgkwjuo" path="res://All_Assets/Audio/shotgun_shoot.mp3" id="6_shoot"]
+[ext_resource type="AudioStream" uid="uid://d3kuujpnvwp7n" path="res://All_Assets/Audio/shotgun_click.mp3" id="7_click"]
+[ext_resource type="AudioStream" uid="uid://bj3bskmub3req" path="res://All_Assets/Audio/Walking_sound.wav" id="8_steps"]
+[ext_resource type="AudioStream" uid="uid://bfsk3pp00nd6" path="res://All_Assets/Audio/damage_take.wav" id="9_hurt"]
+[ext_resource type="Script" path="res://Scripts/crosshair.gd" id="10_crosshair"]
+[ext_resource type="Script" path="res://Scripts/kill_counter.gd" id="12_kills"]
+[ext_resource type="Script" path="res://Scripts/death_screen.gd" id="13_death"]
+[ext_resource type="Script" path="res://Scripts/pixel_text.gd" id="14_pixel"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_flash"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(1.6, 1.35, 1.1, 1)
+albedo_texture = ExtResource("5_flash")
+
+[sub_resource type="QuadMesh" id="Quad_flash_front"]
+material = SubResource("Mat_flash")
+size = Vector2(0.17, 0.17)
+
+[sub_resource type="QuadMesh" id="Quad_flash_side"]
+material = SubResource("Mat_flash")
+size = Vector2(0.24, 0.12)
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_player"]
+radius = 0.4
+height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_bean"]
+albedo_color = Color(0.25, 0.55, 0.95, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_bean"]
+material = SubResource("Mat_bean")
+radius = 0.4
+height = 1.8
+
+[node name="Player" type="CharacterBody3D" unique_id=160431161 groups=["player"]]
+floor_snap_length = 0.3
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("CapsuleShape3D_player")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("CapsuleMesh_bean")
+
+[node name="Head" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+current = true
+fov = 75.0
+near = 0.02
+far = 200.0
+
+[node name="Shotgun" type="Node3D" parent="Head/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.085, -0.075, -0.13)
+visible = false
+script = ExtResource("3_shotgun")
+
+[node name="Model" parent="Head/Camera3D/Shotgun" instance=ExtResource("4_gunmodel")]
+transform = Transform3D(0, 0, 0.065, 0, 0.065, 0, -0.065, 0, 0, 0, 0, 0)
+
+[node name="Muzzle" type="Node3D" parent="Head/Camera3D/Shotgun"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.0137, -0.285)
+
+[node name="FlashFront" type="MeshInstance3D" parent="Head/Camera3D/Shotgun/Muzzle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.015)
+cast_shadow = 0
+mesh = SubResource("Quad_flash_front")
+
+[node name="FlashSide" type="MeshInstance3D" parent="Head/Camera3D/Shotgun/Muzzle"]
+transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, 0, 0, -0.1)
+cast_shadow = 0
+mesh = SubResource("Quad_flash_side")
+
+[node name="FlashLight" type="OmniLight3D" parent="Head/Camera3D/Shotgun/Muzzle"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.06)
+light_color = Color(1, 0.72, 0.38, 1)
+light_energy = 9.0
+omni_range = 9.0
+omni_attenuation = 1.2
+
+[node name="ShootSound" type="AudioStreamPlayer" parent="Head/Camera3D/Shotgun"]
+stream = ExtResource("6_shoot")
+volume_db = 2.0
+
+[node name="PumpSound" type="AudioStreamPlayer" parent="Head/Camera3D/Shotgun"]
+stream = ExtResource("7_click")
+volume_db = -2.0
+
+[node name="Flashlight" type="SpotLight3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, -0.15, -0.1)
+light_color = Color(1, 0.98, 0.95, 1)
+light_energy = 4.0
+spot_range = 26.0
+spot_attenuation = 1.0
+spot_angle = 26.0
+spot_angle_attenuation = 1.6
+
+[node name="HUD" type="CanvasLayer" parent="."]
+layer = 6
+
+[node name="Hearts" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -64.0
+offset_right = 248.0
+offset_bottom = -24.0
+grow_vertical = 0
+mouse_filter = 2
+script = ExtResource("2_hud")
+
+[node name="Crosshair" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("10_crosshair")
+
+[node name="Prompt" type="Label" parent="HUD"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = 40.0
+offset_right = 260.0
+offset_bottom = 72.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.95, 0.95, 0.92, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+
+[node name="Footsteps" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_steps")
+volume_db = -6.0
+
+[node name="HurtSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_hurt")
+
+[node name="KillCounter" type="Control" parent="HUD"]
+layout_mode = 3
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -280.0
+offset_top = 14.0
+offset_right = -14.0
+offset_bottom = 74.0
+grow_horizontal = 0
+mouse_filter = 2
+script = ExtResource("12_kills")
+text = "KILLS 0"
+font_size = 12
+pixel_scale = 3.5
+split_texels = 0.5
+
+[node name="DeathScreen" type="CanvasLayer" parent="."]
+layer = 8
+visible = false
+script = ExtResource("13_death")
+
+[node name="Dim" type="ColorRect" parent="DeathScreen"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
+[node name="Band" type="ColorRect" parent="DeathScreen"]
+offset_right = 4.0
+offset_bottom = 4.0
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="YouDied" type="Control" parent="DeathScreen"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -60.0
+offset_bottom = -60.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("14_pixel")
+text = "YOU DIED"
+font_size = 20
+pixel_scale = 6.0
+color = Color(0.85, 0.08, 0.06, 1)
+split_texels = 0.8
+auto_glitch = true
+glitch_interval = Vector2(0.6, 1.8)
+corrupt_variants = PackedStringArray("Y0U DIED", "YOU D1ED", "Y_U DIED", "YOU DI3D", "YOU  DIED")
+
+[node name="Restarting" type="Control" parent="DeathScreen"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 70.0
+offset_bottom = 70.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("14_pixel")
+text = "RESTARTING..."
+font_size = 10
+pixel_scale = 3.0
+color = Color(0.8, 0.8, 0.78, 1)
+split_texels = 0.5
+
+[node name="Bar" type="Control" parent="DeathScreen"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = 112.0
+offset_right = 180.0
+offset_bottom = 128.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="KilledBy" type="Control" parent="DeathScreen"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -105.0
+offset_bottom = -105.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("14_pixel")
+text = "YOU WERE KILLED BY"
+font_size = 12
+pixel_scale = 3.5
+color = Color(0.88, 0.88, 0.85, 1)
+split_texels = 0.5
+
+[node name="Him" type="Control" parent="DeathScreen"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -10.0
+offset_bottom = -10.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("14_pixel")
+text = "HIM"
+font_size = 22
+pixel_scale = 6.0
+color = Color(0.9, 0.05, 0.04, 1)
+split_texels = 1.5
+auto_glitch = true
+glitch_interval = Vector2(0.15, 0.6)
+glitch_duration = Vector2(0.1, 0.35)
+corrupt_variants = PackedStringArray("H1M", "HlM", "H_M", "HIIM", "#IM", "HIM?", "H!M")
+
+[node name="TitleButton" type="Button" parent="DeathScreen"]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -160.0
+offset_top = 95.0
+offset_right = 160.0
+offset_bottom = 147.0
+grow_horizontal = 2
+grow_vertical = 2
+text = "Go to title screen"

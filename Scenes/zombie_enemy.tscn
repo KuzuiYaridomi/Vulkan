@@ -1,0 +1,26 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/zombie.gd" id="1_zombie"]
+[ext_resource type="PackedScene" uid="uid://64venj77spvh" path="res://Scenes/zombie_normal.tscn" id="2_model"]
+[ext_resource type="AudioStream" path="res://All_Assets/Audio/damage_take.wav" id="3_hit"]
+
+[sub_resource type="CapsuleShape3D" id="Capsule_zombie"]
+radius = 0.35
+height = 1.8
+
+[node name="Zombie" type="CharacterBody3D"]
+floor_snap_length = 0.3
+script = ExtResource("1_zombie")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("Capsule_zombie")
+
+[node name="Model" parent="." instance=ExtResource("2_model")]
+transform = Transform3D(-0.4, 0, 0, 0, 0.4, 0, 0, 0, -0.4, 0, 0, 0)
+
+[node name="HitSound" type="AudioStreamPlayer3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4, 0)
+stream = ExtResource("3_hit")
+unit_size = 6.0
+max_distance = 40.0
